@@ -132,6 +132,34 @@ class _SideBarState extends State<SideBar> {
 
               _buildNavItem(
                 context,
+                index: 1,
+                title: '收件箱',
+                icon: Icons.inbox,
+              ),
+              const SizedBox(height: 8),
+
+              _buildNavItem(
+                context,
+                index: 2,
+                title: '发件箱',
+                icon: Icons.send,
+              ),
+              const SizedBox(height: 8),
+
+              _buildNavItem(
+                context,
+                index: 3,
+                title: '邮箱设置',
+                icon: Icons.mail_outline,
+              ),
+              const SizedBox(height: 8),
+
+              _buildDivider(context),
+
+              const SizedBox(height: 8),
+
+              _buildNavItem(
+                context,
                 index: 4,
                 title: '系统设置',
                 icon: Icons.settings,
@@ -290,23 +318,29 @@ class _SideBarState extends State<SideBar> {
                         Row(
                           // 使用 Row 并排放置时间和类型
                           children: [
-                            Text(
-                              _formatTime(notification.time),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: colorScheme.onSurfaceVariant,
+                            Flexible( // Wrap the first Text with Flexible
+                              child: Text(
+                                _formatTime(notification.time),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                overflow: TextOverflow.ellipsis, // Add overflow handling
                               ),
                             ),
                             const SizedBox(width: 8), // 添加间距
                             // 添加类型标签
-                            Text(
-                              '(${_getNotifyTypeName(notification.type)})', // 调用辅助方法获取类型名称
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: notifyColor.withAlpha(
-                                  (255 * 0.8).round(),
-                                ), // Use withAlpha
-                                fontWeight: FontWeight.w500,
+                            Flexible( // Wrap the second Text with Flexible
+                              child: Text(
+                                '(${_getNotifyTypeName(notification.type)})', // 调用辅助方法获取类型名称
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: notifyColor.withAlpha(
+                                    (255 * 0.8).round(),
+                                  ), // Use withAlpha
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis, // Add overflow handling
                               ),
                             ),
                           ],

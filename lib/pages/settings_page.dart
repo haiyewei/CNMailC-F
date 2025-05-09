@@ -158,11 +158,13 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
-          _buildSection(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: double.infinity),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            _buildSection(
             title: '外观设置',
             icon: Icons.palette_outlined,
             children: [
@@ -404,8 +406,9 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
           ),
         ],
       ),
-    );
-  }
+    ), // Closing parenthesis for ConstrainedBox
+  ); // Closing parenthesis for SingleChildScrollView
+}
 
   Widget _buildSection({
     required String title,

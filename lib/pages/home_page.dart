@@ -7,6 +7,9 @@ import '../components/side_bar.dart';
 import '../themes/theme_manager.dart';
 import 'dashboard_page.dart';
 import 'settings_page.dart';
+import 'inbox_page.dart';
+import 'sent_page.dart';
+import 'mail_settings_page.dart';
 
 // 全局键，用于在任何位置获取HomePageState
 final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
@@ -32,10 +35,10 @@ class HomePageState extends State<HomePage> {
   // 页面列表
   final List<Widget> _pages = [
     const DashboardPage(),
-    Container(), // Placeholder for '收件箱'
-    Container(), // Placeholder for '发件箱'
-    Container(), // Placeholder for '邮箱设置'
-    const SystemSettingsPage(), // Corrected class name for '系统设置'
+    const InboxPage(),
+    const SentPage(),
+    const MailSettingsPage(),
+    const SystemSettingsPage(),
   ];
 
   // 页面标题
