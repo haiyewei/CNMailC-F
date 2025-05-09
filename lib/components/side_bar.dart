@@ -4,6 +4,7 @@ import '../constants/app_info.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../services/notify/notify.dart';
+import '../themes/theme_manager.dart'; // 导入 getAdaptiveStadiumBorder
 
 class SideBar extends StatefulWidget {
   final int selectedIndex;
@@ -411,7 +412,7 @@ class _SideBarState extends State<SideBar> {
       elevation: isSelected ? 1 : 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: getAdaptiveStadiumBorder(), // 使用 getAdaptiveStadiumBorder，移除 context 参数
       color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
       child: InkWell(
         onTap: () => widget.onItemSelected(index),

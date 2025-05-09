@@ -14,11 +14,11 @@ class DashboardPage extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: Card(
-              elevation: 2,
+              elevation: 0,
+              color: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
-              surfaceTintColor: colorScheme.surfaceTint,
               shadowColor: colorScheme.shadow.withAlpha(51), // 保持原有的 shadowColor Alpha 值
               child: Padding(
                 padding: const EdgeInsets.all(16.0),

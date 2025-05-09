@@ -14,9 +14,9 @@ class InboxPage extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: Card(
-              elevation: 2,
+              elevation: 0,
+              color: Colors.transparent,
               shadowColor: colorScheme.shadow.withAlpha((255 * 0.2).round()),
-              surfaceTintColor: colorScheme.surfaceTint,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
               child: Padding(
                 padding: const EdgeInsets.all(16),

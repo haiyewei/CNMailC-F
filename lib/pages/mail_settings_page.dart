@@ -20,9 +20,9 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
     // 原 _buildCard 的 onTap 参数不再直接使用，而是通过内部按钮的 onTap 改变状态
 
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: Colors.transparent,
       shadowColor: colorScheme.shadow.withAlpha((255 * 0.2).round()),
-      surfaceTintColor: colorScheme.surfaceTint,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Padding( // 移除了外部InkWell，因为主卡片本身不可点击，而是其内部元素可点击
         padding: const EdgeInsets.all(16),
