@@ -157,7 +157,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
     final isDesktop = _isDesktop();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(5),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: double.infinity),
         child: Column(
@@ -423,25 +423,28 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
       surfaceTintColor: colorScheme.surfaceTint,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(icon, color: colorScheme.primary, size: 28),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface,
+            Padding( // 为标题行添加内边距
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                children: [
+                  Icon(icon, color: colorScheme.primary, size: 28),
+                  const SizedBox(width: 16),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8.0), // 减小标题行与下方内容的间距
             ...children,
           ],
         ),
