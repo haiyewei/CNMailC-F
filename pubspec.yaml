@@ -1,4 +1,4 @@
-name: cnmcf
+name: cnmailc
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -48,10 +48,16 @@ dependencies:
   launch_at_startup: ^0.5.1
   package_info_plus: ^8.3.0
   enough_mail: ^2.1.6
+  sqlite3_flutter_libs: ^0.5.32
+  drift: ^2.26.1
+
+  
   
 dev_dependencies:
  flutter_test:
    sdk: flutter
+ drift_dev: ^2.26.1
+ build_runner: ^2.4.15
 
 dependency_overrides:
   async: 2.13.0

@@ -1,4 +1,4 @@
-# CNMCF - Flutter创建的美化框架应用
+# CNMailC - Flutter创建的美化框架应用
 
 这是一个使用 Flutter 框架构建的多平台应用程序，界面美化采用了 Google Material 3设计规范。
 

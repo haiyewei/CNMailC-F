@@ -1,4 +1,4 @@
-package com.github.haiyewei.cnmcf
+package com.github.haiyewei.cnmailc
 
 import io.flutter.embedding.android.FlutterActivity
 import android.os.Build

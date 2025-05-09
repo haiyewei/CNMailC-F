@@ -35,7 +35,7 @@ class SystemTrayService {
     }
 
     // Set tooltip
-    _trayIcon.setTooltip("CNMCF"); // Set a tooltip
+    _trayIcon.setTooltip("CNMailC"); // Set a tooltip
 
     // Set click handlers
     _trayIcon.onTap = (_) => _onTrayIconTap();

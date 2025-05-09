@@ -1,3 +1,3 @@
 class AppInfo {
-  static const String appName = 'CNMCF';
+  static const String appName = 'CNMailC';
 } 

@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   contextual_menu
   dynamic_color
   screen_retriever_linux
+  sqlite3_flutter_libs
   window_manager
 )
 

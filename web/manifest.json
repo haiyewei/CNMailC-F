@@ -1,6 +1,6 @@
 {
-    "name": "CNMCF",
-    "short_name": "CNMCF",
+    "name": "CNMailC",
+    "short_name": "CNMailC",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
