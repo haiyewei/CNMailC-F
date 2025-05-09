@@ -47,7 +47,7 @@ class ImapService {
 
       // TODO: 实现更多 IMAP 连接和 ID 命令后的操作
       // await client.logout(); // 根据应用程序流程决定何时注销
-    } on ImapException catch (e) {
+    } on ImapException {
       // print('连接 IMAP 服务器或发送 ID 失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
     }
@@ -71,7 +71,7 @@ class ImapService {
       );
       messages = fetchResult.messages;
     
-    } on ImapException catch (e) {
+    } on ImapException {
       // print('获取 IMAP 邮件失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
     }

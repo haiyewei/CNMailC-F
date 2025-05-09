@@ -28,14 +28,16 @@ class SmtpService {
       } else if (client.serverInfo.supportsAuth(AuthMechanism.login)) {
         await client.authenticate(username, password, AuthMechanism.login);
       } else {
-        // print('SMTP 服务器不支持 PLAIN 或 LOGIN 认证');
-        return;
+        throw SmtpException(
+          client,
+          SmtpResponse(
+            ['504 SMTP server does not support PLAIN or LOGIN authentication.']
+          )
+        );
       }
-      final sendResponse = await client.sendMessage(message);
-      // print('邮件发送成功: ${sendResponse.isOkStatus}');
+      await client.sendMessage(message);
       await client.quit();
-    } on SmtpException catch (e) {
-      // print('发送邮件失败: $e');
+    } on SmtpException {
       rethrow; // 重新抛出异常以便调用者处理
     }
   }

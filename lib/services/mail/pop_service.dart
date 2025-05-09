@@ -26,7 +26,7 @@ class PopService {
       // print('成功连接到 POP3 服务器');
       // TODO: 实现更多 POP3 连接后的操作
       // await client.quit(); // 根据需要决定何时断开连接
-    } on PopException catch (e) {
+    } on PopException {
       // print('连接 POP3 服务器失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
     }
@@ -45,7 +45,7 @@ class PopService {
       }
       // print('成功获取 ${messageList.length} 封 POP3 邮件列表项');
       // await client.quit(); // 根据需要决定何时断开连接
-    } on PopException catch (e) {
+    } on PopException {
       // print('获取 POP3 邮件列表失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
     }
@@ -60,13 +60,10 @@ class PopService {
       await client.connectToServer(pop3ServerHost, pop3ServerPort, isSecure: pop3IsSecure);
       await client.login(username, password);
       message = await client.retrieve(messageNumber);
-      if (message != null) { // unnecessary_null_comparison - message is already non-nullable
-         // print('成功获取 POP3 邮件: $messageNumber');
-      } else {
-         // print('未找到 POP3 邮件: $messageNumber');
-      }
-      // await client.quit(); // 根据需要决定何时断开连接
-    } on PopException catch (e) {
+ // unnecessary_null_comparison - message is already non-nullable
+       // print('成功获取 POP3 邮件: $messageNumber');
+          // await client.quit(); // 根据需要决定何时断开连接
+    } on PopException {
       // print('获取 POP3 邮件失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
     }
