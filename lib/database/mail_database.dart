@@ -26,6 +26,7 @@ class EmailAccounts extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  @override
   int get schemaVersion => 1;
 }
 
