@@ -20,7 +20,7 @@ class ImapService {
   /// 连接到 IMAP 服务器。
   Future<void> connect() async {
     final client = ImapClient(
-      isLogEnabled: false,
+      isLogEnabled: true,
     ); // 调试时可以考虑启用日志: isLogEnabled: true
     try {
       await client.connectToServer(
