@@ -1,5 +1,4 @@
 import 'package:enough_mail/enough_mail.dart';
-import 'dart:io'; // 用于 Platform.operatingSystem 等
 
 /// IMAP 服务类，处理 IMAP 协议相关的邮件操作。
 class ImapService {
