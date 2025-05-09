@@ -36,6 +36,19 @@ class EditMailCard extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
+                  const Spacer(), // 将按钮推到右侧
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.close, color: colorScheme.onError),
+                    label: Text('退出', style: TextStyle(color: colorScheme.onError)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.error,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: onExit,
+                  ),
                 ],
               ),
             ),
@@ -55,19 +68,6 @@ class EditMailCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: Icon(Icons.close, color: colorScheme.onError),
-              label: Text('退出', style: TextStyle(color: colorScheme.onError)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.error,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              onPressed: onExit,
             ),
           ],
         ),

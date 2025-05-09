@@ -5,8 +5,41 @@ class SentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('发件箱页面创建成功'),
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: Card(
+              elevation: 2,
+              shadowColor: colorScheme.shadow.withAlpha((255 * 0.2).round()),
+              surfaceTintColor: colorScheme.surfaceTint,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // 在这里可以添加发件箱页面的具体内容
+                    // 例如，邮件列表等
+                    // 为了演示，我们先放一个简单的文本
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          '发件箱内容将显示在此处',
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
