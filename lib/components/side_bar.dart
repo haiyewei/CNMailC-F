@@ -142,7 +142,7 @@ class _SideBarState extends State<SideBar> {
                 context,
                 index: 2,
                 title: '发件箱',
-                icon: Icons.send,
+                icon: Icons.outbox,
               ),
               const SizedBox(height: 8),
 

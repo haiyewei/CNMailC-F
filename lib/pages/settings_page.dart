@@ -394,7 +394,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
               ListTile(
                 title: const Text('版本'),
                 subtitle: Text(
-                  '1.0.0',
+                  '0.0.1',
                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
                 leading: Icon(

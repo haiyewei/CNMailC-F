@@ -8,7 +8,7 @@ import '../themes/theme_manager.dart';
 import 'dashboard_page.dart';
 import 'settings_page.dart';
 import 'inbox_page.dart';
-import 'sent_page.dart';
+import 'outbox_page.dart';
 import 'mail_settings_page.dart';
 
 // 全局键，用于在任何位置获取HomePageState
