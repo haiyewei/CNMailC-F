@@ -1,4 +1,3 @@
-import 'package:enough_mail/enough_mail.dart';
 import 'pop_service.dart';
 import 'imap_service.dart';
 import 'smtp_service.dart';
@@ -68,25 +67,12 @@ class MailService {
     await _popService.connect();
   }
 
-  /// 发送邮件。
-  Future<void> sendEmail(MimeMessage message) async {
-    await _smtpService.sendEmail(message);
-  }
+  /// 获取 IMAP 服务实例。
+  ImapService get imapService => _imapService;
 
-  /// 获取邮件列表 (IMAP)。
-  Future<List<MimeMessage>> fetchImapMessages({int count = 10}) async {
-    return await _imapService.fetchMessages(count: count);
-  }
+  /// 获取 POP 服务实例。
+  PopService get popService => _popService;
 
-   /// 获取邮件列表 (POP3)。
-  Future<List<dynamic>> fetchPop3MessageList() async {
-    return await _popService.fetchMessageList();
-  }
-
-  /// 获取特定邮件 (POP3)。
-  Future<MimeMessage?> retrievePop3Message(int messageNumber) async {
-    return await _popService.retrieveMessage(messageNumber);
-  }
-
-  // TODO: 添加其他需要的方法，例如断开连接等
+  /// 获取 SMTP 服务实例。
+  SmtpService get smtpService => _smtpService;
 }
