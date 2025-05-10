@@ -8,6 +8,8 @@ class PopService {
   final int pop3ServerPort;
   final bool pop3IsSecure;
 
+  PopClient? _client;
+
   /// 构造函数，传入 POP3 服务的配置参数。
   PopService({
     required this.username,
@@ -19,32 +21,48 @@ class PopService {
 
   /// 连接到 POP3 服务器。
   Future<void> connect() async {
-    final client = PopClient(isLogEnabled: false);
+    _client = PopClient(isLogEnabled: false);
     try {
-      await client.connectToServer(pop3ServerHost, pop3ServerPort, isSecure: pop3IsSecure);
-      await client.login(username, password);
+      await _client!.connectToServer(
+        pop3ServerHost,
+        pop3ServerPort,
+        isSecure: pop3IsSecure,
+      );
+      await _client!.login(username, password);
       // print('成功连接到 POP3 服务器');
-      // TODO: 实现更多 POP3 连接后的操作
-      // await client.quit(); // 根据需要决定何时断开连接
     } on PopException {
       // print('连接 POP3 服务器失败: $e');
+      _client = null; // 连接失败时重置客户端
       rethrow; // 重新抛出异常以便调用者处理
     }
   }
 
   /// 获取邮件列表 (POP3)。
-  Future<List<dynamic>> fetchMessageList() async { // TODO: Check if PopMessageItem is a valid type from enough_mail or replace with a defined type
+  /// 注意: 此方法当前创建自己的客户端实例。
+  /// 理想情况下，它应该使用共享的 _client 实例（如果已连接）。
+  Future<List<MessageListing>> fetchMessageList() async {
+    // 理想情况下，这里应该检查 _client 是否已连接并使用它
+    // if (_client == null || !_client!.isLoggedIn) { // PopClient 可能没有 isConnected，检查 isLoggedIn
+    //   await connect(); // 或者抛出未连接错误
+    // }
+    // final clientToUse = _client!; // 假设已连接
+
+    // 当前实现：为保持与原始逻辑一致，暂时仍创建新客户端
     final client = PopClient(isLogEnabled: false);
-    List<dynamic> messageList = []; // TODO: Check if PopMessageItem is a valid type from enough_mail or replace with a defined type
+    List<MessageListing> messageList = [];
     try {
-      await client.connectToServer(pop3ServerHost, pop3ServerPort, isSecure: pop3IsSecure);
+      await client.connectToServer(
+        pop3ServerHost,
+        pop3ServerPort,
+        isSecure: pop3IsSecure,
+      );
       await client.login(username, password);
       final status = await client.status();
       if (status.numberOfMessages > 0) {
-         messageList = (await client.list(status.numberOfMessages));
+        messageList = await client.list(status.numberOfMessages);
       }
       // print('成功获取 ${messageList.length} 封 POP3 邮件列表项');
-      // await client.quit(); // 根据需要决定何时断开连接
+      await client.quit(); // 获取后应注销并关闭此临时客户端
     } on PopException {
       // print('获取 POP3 邮件列表失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
@@ -53,16 +71,28 @@ class PopService {
   }
 
   /// 获取特定邮件 (POP3)。
+  /// 注意: 此方法当前创建自己的客户端实例。
+  /// 理想情况下，它应该使用共享的 _client 实例（如果已连接）。
   Future<MimeMessage?> retrieveMessage(int messageNumber) async {
+    // 理想情况下，这里应该检查 _client 是否已连接并使用它
+    // if (_client == null || !_client!.isLoggedIn) {
+    //   await connect();
+    // }
+    // final clientToUse = _client!;
+
+    // 当前实现：为保持与原始逻辑一致，暂时仍创建新客户端
     final client = PopClient(isLogEnabled: false);
     MimeMessage? message;
     try {
-      await client.connectToServer(pop3ServerHost, pop3ServerPort, isSecure: pop3IsSecure);
+      await client.connectToServer(
+        pop3ServerHost,
+        pop3ServerPort,
+        isSecure: pop3IsSecure,
+      );
       await client.login(username, password);
       message = await client.retrieve(messageNumber);
- // unnecessary_null_comparison - message is already non-nullable
-       // print('成功获取 POP3 邮件: $messageNumber');
-          // await client.quit(); // 根据需要决定何时断开连接
+      // print('成功获取 POP3 邮件: $messageNumber');
+      await client.quit(); // 获取后应注销并关闭此临时客户端
     } on PopException {
       // print('获取 POP3 邮件失败: $e');
       rethrow; // 重新抛出异常以便调用者处理
@@ -70,5 +100,25 @@ class PopService {
     return message;
   }
 
-  // TODO: 添加其他需要的方法，例如断开连接等
+  /// 断开与 POP3 服务器的连接。
+  Future<void> disconnect() async {
+    if (_client != null && _client!.isLoggedIn) {
+      // PopClient 主要通过 isLoggedIn 判断状态
+      try {
+        // print('POP3 客户端状态: isLoggedIn=${_client!.isLoggedIn}');
+        await _client!.quit();
+        // print('POP3 客户端已发送 QUIT 命令');
+        // PopClient 在 quit() 后通常会关闭连接。
+      } on PopException {
+        // print('断开 POP3 连接失败: $e');
+        // 即使 quit 失败，也尝试将客户端置于非活动状态
+      } finally {
+        _client = null; // 无论成功与否，都将客户端引用置空
+        // print('POP3 客户端引用已置空');
+      }
+    } else {
+      // print('POP3 客户端未连接或已断开，无需操作。');
+      _client = null; // 确保客户端引用已置空
+    }
+  }
 }

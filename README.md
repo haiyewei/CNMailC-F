@@ -218,6 +218,15 @@ Future<void> demonstrateMailService() async {
   } catch (e) {
     print('发生未知错误 (SMTP): $e');
   }
+
+  // 6. 断开所有服务 (在适当的时候调用，例如应用退出前)
+  try {
+    print('\n尝试断开所有邮件服务...');
+    await mailService.disconnectAllServices();
+    print('所有邮件服务已尝试断开。');
+  } catch (e) {
+    print('断开所有服务时发生错误: $e');
+  }
 }
 
 // 你可以在你的 main 函数或其他地方调用这个演示函数：
@@ -225,6 +234,17 @@ Future<void> demonstrateMailService() async {
 //   await demonstrateMailService();
 // }
 ```
+
+### 断开连接
+
+当你不再需要 `MailService` 或者应用程序即将关闭时，应该断开与邮件服务器的连接以释放资源。`MailService` 提供了一个便捷的方法 `disconnectAllServices()` 来处理这个问题：
+
+```dart
+// mailService 是你的 MailService 实例
+await mailService.disconnectAllServices();
+```
+
+此方法会尝试断开所有内部管理的邮件服务（IMAP, POP3, SMTP）。它会独立处理每个服务的断开操作，即使某个服务断开失败，也会继续尝试断开其他服务。
 
 **重要注意事项:**
 
