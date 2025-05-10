@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../components/add_mail_card.dart'; // 导入 AddMailCard
-import '../components/edit_mail_card.dart'; // 导入 EditMailCard
-
-enum _CardType { main, add, edit }
+import '../database/mail_database.dart';
+import '../components/add_mail_card.dart';
+import '../services/notify/notify.dart'; // Corrected import
 
 class MailSettingsPage extends StatefulWidget {
   const MailSettingsPage({super.key});
@@ -12,96 +11,110 @@ class MailSettingsPage extends StatefulWidget {
 }
 
 class _MailSettingsPageState extends State<MailSettingsPage> {
-  _CardType _currentCard = _CardType.main;
+  late AppDatabase _db;
+  List<MailAccount> _mailAccounts = [];
+  bool _isLoading = true;
+  bool _isAddingAccount = false; // State to control AddMailCard visibility
 
-  Widget _buildMainCard() {
-    final colorScheme = Theme.of(context).colorScheme;
-    // _buildCard 的逻辑现在移到这里，并根据需要调整
-    // 原 _buildCard 的 onTap 参数不再直接使用，而是通过内部按钮的 onTap 改变状态
+  @override
+  void initState() {
+    super.initState();
+    _db = AppDatabase();
+    _loadMailAccounts();
+  }
 
+  Future<void> _loadMailAccounts() async {
+    setState(() {
+      _isLoading = true;
+      // _errorLoading = false; // Reset error state - Not strictly needed if only used in catch
+    });
+    try {
+      final accounts = await _db.getAllMailAccounts();
+      if (mounted) {
+        setState(() {
+          _mailAccounts = accounts;
+          _isLoading = false;
+          // 不需要在这里因为列表为空而显示错误
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          // _errorLoading = true; //  可以根据需要保留此状态，但主要通过通知
+        });
+        // 仅在此处，当发生真实异常时，才显示错误通知
+        NotifyController().showNotify(NotifyData(message: '加载邮箱账户失败: $e', type: NotifyType.app, time: DateTime.now()));
+      }
+    }
+  }
+
+  Widget _buildMailAccountsList(ColorScheme colorScheme) {
     return Card(
       elevation: 0,
       color: Colors.transparent,
       shadowColor: colorScheme.shadow.withAlpha((255 * 0.2).round()),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      child: Padding( // 移除了外部InkWell，因为主卡片本身不可点击，而是其内部元素可点击
-        padding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(42)), // Consistent card shape
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0), // 减小按钮行与Divider的间距
+              padding: const EdgeInsets.symmetric(vertical: 4.0), // Consistent title padding
               child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _currentCard = _CardType.add;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0), // 减小按钮内边距
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_circle_outline, color: colorScheme.primary, size: 28),
-                            const SizedBox(width: 16),
-                            Text(
-                              '添加邮箱',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                children: [
+                  Icon(Icons.account_box_outlined, color: colorScheme.primary, size: 28),
+                  const SizedBox(width: 16),
+                  Text(
+                    '已添加的邮箱账户',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _currentCard = _CardType.edit;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0), // 减小按钮内边距
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.edit, color: colorScheme.primary, size: 28),
-                            const SizedBox(width: 16),
-                            Text(
-                              '编辑邮箱',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  const Spacer(), // Add Spacer to push the button to the right
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    color: colorScheme.primary,
+                    tooltip: '添加邮箱账户',
+                    onPressed: () {
+                      setState(() {
+                        _isAddingAccount = true; // Show AddMailCard
+                      });
+                    },
                   ),
                 ],
               ),
             ),
-            const Divider(),
-            const SizedBox(height: 16), // 添加一些空间，如果下面有内容的话
-            // 此处可以放置主卡片的其他内容，例如已保存邮箱列表
-            // 为简单起见，暂时留空或放置一个提示
-            Expanded(
-              child: Center(
-                child: Text(
-                  '已保存的邮箱列表将显示在此处',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 8.0), // Consistent spacing after title
+            if (_mailAccounts.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
+                  child: Text(
+                    '未添加账户',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
                 ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _mailAccounts.length,
+                itemBuilder: (context, index) {
+                  final account = _mailAccounts[index];
+                  return ListTile(
+                    leading: const Icon(Icons.mail_outline),
+                    title: Text(account.emailAddress),
+                    subtitle: Text(account.alias ?? '无别名'),
+                  );
+                },
               ),
-            ),
           ],
         ),
       ),
@@ -110,38 +123,36 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget cardToDisplay;
-    switch (_currentCard) {
-      case _CardType.add:
-        cardToDisplay = AddMailCard(onExit: () {
-          setState(() {
-            _currentCard = _CardType.main;
-          });
-        });
-        break;
-      case _CardType.edit:
-        cardToDisplay = EditMailCard(onExit: () {
-          setState(() {
-            _currentCard = _CardType.main;
-          });
-        });
-        break;
-      case _CardType.main:
-        cardToDisplay = _buildMainCard();
-        break;
-
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(5), // 根据之前的修改，这里的padding值可能是16或5
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: cardToDisplay,
-          ),
-        ],
-      ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return Scaffold(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(5), // Consistent padding with settings_page
+              child: Column( // Use Column to wrap content like in settings_page
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8), // Consistent spacing with settings_page
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _isAddingAccount
+                        ? AddMailCard(
+                            key: const ValueKey('addMailCard'), // Add key for AnimatedSwitcher
+                            onExit: ({bool saved = false}) {
+                              setState(() {
+                                _isAddingAccount = false;
+                              });
+                              if (saved) {
+                                _loadMailAccounts(); // Refresh the list
+                                NotifyController().showNotify(NotifyData(message: '账户已成功添加', type: NotifyType.app, time: DateTime.now()));
+                              }
+                            },
+                          )
+                        : _buildMailAccountsList(colorScheme),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
