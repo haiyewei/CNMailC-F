@@ -454,12 +454,9 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
 
     // 查找当前选中颜色的名称
     String selectedColorName = '';
-
-    // 判断是否为默认蓝色
     if (themeManager.primaryColor.toARGB32() == Colors.blue.toARGB32()) {
       selectedColorName = '经典蓝';
     } else {
-      // 从颜色列表中查找
       for (var option in _colorOptions) {
         if (option.color.toARGB32() == themeManager.primaryColor.toARGB32()) {
           selectedColorName = option.name;
@@ -471,67 +468,42 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    '主色调',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: themeManager.primaryColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colorScheme.outline, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.shadow.withAlpha((255 * 0.2).round()), // 使用 withAlpha
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    selectedColorName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+        ListTile(
+          // contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0), // 移除自定义内边距以与其他选项对齐
+          leading: Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: themeManager.primaryColor,
+              shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.outline, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withAlpha((255 * 0.2).round()),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(
-                _isColorSectionExpanded ? Icons.expand_less : Icons.expand_more,
-                color: colorScheme.primary,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isColorSectionExpanded = !_isColorSectionExpanded;
-                });
-              },
-            ),
-          ],
+          ),
+          title: Text('主色调: $selectedColorName'),
+          // subtitle: Text(
+          //   selectedColorName,
+          //   style: TextStyle(
+          //     fontSize: 12, // 减小副标题字体大小
+          //     color: colorScheme.onSurfaceVariant,
+          //   ),
+          // ),
+          trailing: Icon(
+            _isColorSectionExpanded ? Icons.expand_less : Icons.expand_more,
+            color: colorScheme.primary,
+          ),
+          onTap: () {
+            setState(() {
+              _isColorSectionExpanded = !_isColorSectionExpanded;
+            });
+          },
         ),
-
         if (_isColorSectionExpanded) ...[
           const SizedBox(height: 8),
           Padding(
@@ -592,7 +564,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.shadow.withAlpha((255 * 0.2).round()), // 使用 withAlpha
+                            color: colorScheme.shadow.withAlpha((255 * 0.2).round()),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
