@@ -9,6 +9,8 @@ import 'package:window_manager/window_manager.dart';
 import '../services/notify/notify.dart'; // 导入 app_notify
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../constants/app_info.dart';
 
 class SystemSettingsPage extends StatefulWidget {
   const SystemSettingsPage({super.key});
@@ -363,10 +365,31 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
             children: [
               ListTile(
                 title: const Text('版本'),
+                subtitle: const Text(AppInfo.appVersion), // 显示应用版本号
                 leading: Icon(
                   Icons.app_settings_alt,
                   color: colorScheme.primary,
                 ),
+              ),
+              ListTile(
+                title: const Text('链接'),
+                leading: Icon(
+                  Icons.link,
+                  color: colorScheme.primary,
+                ),
+                onTap: () async {
+                  final Uri url = Uri.parse(AppInfo.officialLink);
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    // 处理无法打开链接的情况
+                    NotifyController().showNotify(NotifyData(
+                      message: '无法打开链接: ${AppInfo.officialLink}',
+                      type: NotifyType.app,
+                      time: DateTime.now(),
+                    ));
+                  }
+                },
               ),
             ],
           ),
