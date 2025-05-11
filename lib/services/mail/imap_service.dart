@@ -23,11 +23,21 @@ class ImapService {
   Future<void> connect() async {
     _client = ImapClient(isLogEnabled: true); // 调试时可以考虑启用日志: isLogEnabled: true
     try {
+      if (_client == null) {
+        throw Exception('Mail client is not initialized prior to connectToServer.');
+      }
       await _client!.connectToServer(
         imapServerHost,
         imapServerPort,
         isSecure: imapIsSecure,
       );
+
+      if (_client == null) {
+        // 此检查理论上不应触发，因为 connectToServer 不应使 _client 为 null
+        // 但为了极致安全，可以保留
+        _client = null; // 确保状态一致性
+        throw Exception('Mail client became null after connectToServer.');
+      }
       await _client!.login(username, password);
 
       // 根据 RFC 2971 发送客户端 ID 信息
@@ -36,6 +46,10 @@ class ImapService {
         version: '0.0.1', // 程序版本号
       );
 
+      if (_client == null) {
+        _client = null; // 确保状态一致性
+        throw Exception('Mail client became null before sending ID.');
+      }
       if (appClientId.name != null && appClientId.name!.isNotEmpty) {
         await _client!.id(clientId: appClientId);
         // print('IMAP ID 命令已发送，参数: ${appClientId.toMap()}'); // Id 类通常有 toMap() 或类似方法用于日志
@@ -43,10 +57,18 @@ class ImapService {
         await _client!.id(clientId: null); // 发送 ID NIL
         // print('IMAP ID 命令已发送 (NIL)');
       }
-    } on ImapException {
+    } on ImapException catch (_) {
       // print('连接 IMAP 服务器或发送 ID 失败: $e');
       _client = null; // 连接失败时重置客户端
+      // throw Exception('Failed to connect to IMAP server or login: ${e.message}');
       rethrow; // 重新抛出异常以便调用者处理
+    } catch (_) {
+      // print('在 IMAP connect 方法中发生非 ImapException 错误: $e');
+      _client = null; // 确保在任何错误情况下都重置客户端
+      // 如果是 "Mail client is not initialized" 等我们主动抛出的异常，直接 rethrow
+      // 否则，可以考虑包装成一个更通用的错误
+      // throw Exception('An unexpected error occurred during IMAP connect: $e');
+      rethrow;
     }
   }
 

@@ -32,7 +32,7 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
       final accounts = await _db.getAllMailAccounts();
       if (mounted) {
         setState(() {
-          _mailAccounts = accounts;
+          _mailAccounts = accounts ?? []; // 确保 _mailAccounts 始终是一个列表，即使数据库返回 null
           _isLoading = false;
           // 不需要在这里因为列表为空而显示错误
         });

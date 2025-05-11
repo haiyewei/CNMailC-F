@@ -23,17 +23,32 @@ class PopService {
   Future<void> connect() async {
     _client = PopClient(isLogEnabled: false);
     try {
+      if (_client == null) {
+        throw Exception('Mail client is not initialized prior to connectToServer.');
+      }
       await _client!.connectToServer(
         pop3ServerHost,
         pop3ServerPort,
         isSecure: pop3IsSecure,
       );
+
+      if (_client == null) {
+        // 此检查理论上不应触发
+        _client = null; // 确保状态一致性
+        throw Exception('Mail client became null after connectToServer.');
+      }
       await _client!.login(username, password);
       // print('成功连接到 POP3 服务器');
-    } on PopException {
+    } on PopException catch (_) {
       // print('连接 POP3 服务器失败: $e');
       _client = null; // 连接失败时重置客户端
+      // throw Exception('Failed to connect to POP3 server or login: ${e.message}');
       rethrow; // 重新抛出异常以便调用者处理
+    } catch (_) {
+      // print('在 POP3 connect 方法中发生非 PopException 错误: $e');
+      _client = null; // 确保在任何错误情况下都重置客户端
+      // throw Exception('An unexpected error occurred during POP3 connect: $e');
+      rethrow;
     }
   }
 

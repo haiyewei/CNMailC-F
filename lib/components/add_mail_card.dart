@@ -91,6 +91,7 @@ class _AddMailCardState extends State<AddMailCard> {
 
       try {
         await _db.insertMailAccount(mailAccountCompanion);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('邮件账户已保存')),
         );
@@ -111,6 +112,7 @@ class _AddMailCardState extends State<AddMailCard> {
           widget.onExit!(saved: true); // 传递保存成功状态
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('保存失败: $e')),
         );
