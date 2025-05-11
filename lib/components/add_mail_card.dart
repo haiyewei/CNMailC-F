@@ -184,6 +184,10 @@ class _AddMailCardState extends State<AddMailCard> {
                 primary: false, // Prevent conflict with parent ScrollView
                 children: <Widget>[
                   TextFormField(
+                controller: _aliasController,
+                decoration: const InputDecoration(labelText: '账户名称', border: InputBorder.none),
+              ),
+              TextFormField(
                 controller: _emailAddressController,
                 decoration: const InputDecoration(labelText: '邮箱地址', border: InputBorder.none),
                 validator: (value) {
@@ -195,10 +199,6 @@ class _AddMailCardState extends State<AddMailCard> {
                   }
                   return null;
                 },
-              ),
-              TextFormField(
-                controller: _aliasController,
-                decoration: const InputDecoration(labelText: '邮箱别名 (可选)', border: InputBorder.none),
               ),
               TextFormField(
                 controller: _passwordController,

@@ -32,7 +32,7 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
       final accounts = await _db.getAllMailAccounts();
       if (mounted) {
         setState(() {
-          _mailAccounts = accounts ?? []; // 确保 _mailAccounts 始终是一个列表，即使数据库返回 null
+          _mailAccounts = accounts; // accounts is guaranteed to be non-null by its type
           _isLoading = false;
           // 不需要在这里因为列表为空而显示错误
         });
@@ -41,10 +41,15 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          // _errorLoading = true; //  可以根据需要保留此状态，但主要通过通知
+          // 当捕获到异常时，_mailAccounts 将保持其在 initState 中设置的初始值 []
+          // 或在 try 块中被成功设置为 [] (如果 getAllMailAccounts 返回 null 但未抛出错误)。
+          // UI 将因此显示 "未添加账户"（如果 _mailAccounts 为空）。
         });
-        // 仅在此处，当发生真实异常时，才显示错误通知
-        NotifyController().showNotify(NotifyData(message: '加载邮箱账户失败: $e', type: NotifyType.app, time: DateTime.now()));
+        // 根据用户要求，如果错误是 "Null check operator used on a null value"，
+        // 这被视为没有账户的正常情况，不应显示错误通知。
+        if (!e.toString().contains("Null check operator used on a null value")) {
+          NotifyController().showNotify(NotifyData(message: '加载邮箱账户失败: $e', type: NotifyType.app, time: DateTime.now()));
+        }
       }
     }
   }
