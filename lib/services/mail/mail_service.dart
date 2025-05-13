@@ -88,37 +88,45 @@ class MailService {
     // 为每个服务添加断开连接的 future
     // IMAP
     // print('准备断开 IMAP 服务...');
-    disconnectFutures.add(_imapService.disconnect().catchError((e) {
-      // print('断开 IMAP 服务失败: $e');
-      // 可以在这里记录错误，但允许其他服务继续断开
-    }));
+    disconnectFutures.add(
+      _imapService.disconnect().catchError((e) {
+        // print('断开 IMAP 服务失败: $e');
+        // 可以在这里记录错误，但允许其他服务继续断开
+      }),
+    );
     serviceNames.add('IMAP');
 
     // POP3
     // print('准备断开 POP3 服务...');
-    disconnectFutures.add(_popService.disconnect().catchError((e) {
-      // print('断开 POP3 服务失败: $e');
-    }));
+    disconnectFutures.add(
+      _popService.disconnect().catchError((e) {
+        // print('断开 POP3 服务失败: $e');
+      }),
+    );
     serviceNames.add('POP3');
 
     // SMTP
     // print('准备断开 SMTP 服务...');
-    disconnectFutures.add(_smtpService.disconnect().catchError((e) {
-      // print('断开 SMTP 服务失败: $e');
-    }));
+    disconnectFutures.add(
+      _smtpService.disconnect().catchError((e) {
+        // print('断开 SMTP 服务失败: $e');
+      }),
+    );
     serviceNames.add('SMTP');
 
     // 等待所有断开操作完成
-    final results = await Future.wait(disconnectFutures.asMap().entries.map((entry) async {
-      try {
-        await entry.value;
-        // print('${serviceNames[entry.key]} 服务已成功断开或无需操作。');
-        return null; // 表示成功或无需操作
-      } catch (e) {
-        // print('在等待 ${serviceNames[entry.key]} 服务断开时捕获到未处理的错误: $e');
-        return e; // 返回错误对象
-      }
-    }));
+    final results = await Future.wait(
+      disconnectFutures.asMap().entries.map((entry) async {
+        try {
+          await entry.value;
+          // print('${serviceNames[entry.key]} 服务已成功断开或无需操作。');
+          return null; // 表示成功或无需操作
+        } catch (e) {
+          // print('在等待 ${serviceNames[entry.key]} 服务断开时捕获到未处理的错误: $e');
+          return e; // 返回错误对象
+        }
+      }),
+    );
 
     // 检查是否有错误发生
     bool allDisconnectedSuccessfully = true;

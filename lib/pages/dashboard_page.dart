@@ -6,10 +6,12 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
-    return Padding( // 移除了 Center，修改了 Padding
+
+    return Padding(
+      // 移除了 Center，修改了 Padding
       padding: const EdgeInsets.all(5.0), // 与 mail_settings_page.dart 保持一致
-      child: Column( // 添加 Column 和 Expanded 使卡片能够扩展
+      child: Column(
+        // 添加 Column 和 Expanded 使卡片能够扩展
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
@@ -19,7 +21,9 @@ class DashboardPage extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
-              shadowColor: colorScheme.shadow.withAlpha(51), // 保持原有的 shadowColor Alpha 值
+              shadowColor: colorScheme.shadow.withAlpha(
+                51,
+              ), // 保持原有的 shadowColor Alpha 值
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

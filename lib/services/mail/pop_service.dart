@@ -24,7 +24,9 @@ class PopService {
     _client = PopClient(isLogEnabled: false);
     try {
       if (_client == null) {
-        throw Exception('Mail client is not initialized prior to connectToServer.');
+        throw Exception(
+          'Mail client is not initialized prior to connectToServer.',
+        );
       }
       await _client!.connectToServer(
         pop3ServerHost,

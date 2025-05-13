@@ -131,12 +131,7 @@ class _SideBarState extends State<SideBar> {
 
               const SizedBox(height: 8),
 
-              _buildNavItem(
-                context,
-                index: 1,
-                title: '收件箱',
-                icon: Icons.inbox,
-              ),
+              _buildNavItem(context, index: 1, title: '收件箱', icon: Icons.inbox),
               const SizedBox(height: 8),
 
               _buildNavItem(
@@ -319,19 +314,23 @@ class _SideBarState extends State<SideBar> {
                         Row(
                           // 使用 Row 并排放置时间和类型
                           children: [
-                            Flexible( // Wrap the first Text with Flexible
+                            Flexible(
+                              // Wrap the first Text with Flexible
                               child: Text(
                                 _formatTime(notification.time),
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: colorScheme.onSurfaceVariant,
                                 ),
-                                overflow: TextOverflow.ellipsis, // Add overflow handling
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis, // Add overflow handling
                               ),
                             ),
                             const SizedBox(width: 8), // 添加间距
                             // 添加类型标签
-                            Flexible( // Wrap the second Text with Flexible
+                            Flexible(
+                              // Wrap the second Text with Flexible
                               child: Text(
                                 '(${_getNotifyTypeName(notification.type)})', // 调用辅助方法获取类型名称
                                 style: TextStyle(
@@ -341,7 +340,9 @@ class _SideBarState extends State<SideBar> {
                                   ), // Use withAlpha
                                   fontWeight: FontWeight.w500,
                                 ),
-                                overflow: TextOverflow.ellipsis, // Add overflow handling
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis, // Add overflow handling
                               ),
                             ),
                           ],
@@ -412,7 +413,8 @@ class _SideBarState extends State<SideBar> {
       elevation: isSelected ? 1 : 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      shape: getAdaptiveStadiumBorder(), // 使用 getAdaptiveStadiumBorder，移除 context 参数
+      shape:
+          getAdaptiveStadiumBorder(), // 使用 getAdaptiveStadiumBorder，移除 context 参数
       color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
       child: InkWell(
         onTap: () => widget.onItemSelected(index),

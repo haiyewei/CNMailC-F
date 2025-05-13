@@ -81,7 +81,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> {
     try {
       // 加载colors.json文件
       final String jsonString = await rootBundle.loadString(
-        'lib/themes/colors.json',
+        'assets/themes/colors.json',
       );
       final List<dynamic> colorsJson = jsonDecode(jsonString);
 

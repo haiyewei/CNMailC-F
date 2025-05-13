@@ -23,9 +23,13 @@ class AppNotifyHandler {
     // Cancel any existing timer for this notification first
     cancelAppAutoDismissTimer(targetNotify);
 
-    _appNotifyLogger.fine('Starting 5-second auto-dismiss timer for App Notify: "${targetNotify.message}"');
+    _appNotifyLogger.fine(
+      'Starting 5-second auto-dismiss timer for App Notify: "${targetNotify.message}"',
+    );
     final timer = Timer(const Duration(seconds: 5), () {
-      _appNotifyLogger.fine('Auto-dismiss timer expired for App Notify: "${targetNotify.message}"');
+      _appNotifyLogger.fine(
+        'Auto-dismiss timer expired for App Notify: "${targetNotify.message}"',
+      );
       // Use the NotifyController singleton to dismiss the notification
       NotifyController().dismissNotification(targetNotify);
       // Timer is automatically removed from map inside dismissNotification -> cancelAppAutoDismissTimer
@@ -36,11 +40,13 @@ class AppNotifyHandler {
 
   /// Cancels the auto-dismiss timer for a given App notification, if it exists.
   void cancelAppAutoDismissTimer(NotifyData targetNotify) {
-     // Ensure it's an app notification
+    // Ensure it's an app notification
     if (targetNotify.type != NotifyType.app) return;
 
     if (_appDismissTimers.containsKey(targetNotify)) {
-      _appNotifyLogger.fine('Cancelling auto-dismiss timer for App Notify: "${targetNotify.message}"');
+      _appNotifyLogger.fine(
+        'Cancelling auto-dismiss timer for App Notify: "${targetNotify.message}"',
+      );
       _appDismissTimers[targetNotify]?.cancel();
       _appDismissTimers.remove(targetNotify);
     }
@@ -48,7 +54,9 @@ class AppNotifyHandler {
 
   /// Cancels all active auto-dismiss timers.
   void cancelAllAppAutoDismissTimers() {
-    _appNotifyLogger.info('Cancelling all active App Notify auto-dismiss timers.');
+    _appNotifyLogger.info(
+      'Cancelling all active App Notify auto-dismiss timers.',
+    );
     _appDismissTimers.forEach((_, timer) => timer.cancel());
     _appDismissTimers.clear();
   }

@@ -25,7 +25,7 @@ class TopBar extends StatefulWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-  
+
   @override
   State<TopBar> createState() => _TopBarState();
 }
@@ -36,7 +36,7 @@ class _TopBarState extends State<TopBar> {
     // 根据当前主题的亮度确定颜色
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final titleColor = isDarkMode ? Colors.black : Colors.white;
-    
+
     // 构建标题部分
     Widget? titleWidget;
     if (_shouldShowTitle()) {
@@ -44,7 +44,7 @@ class _TopBarState extends State<TopBar> {
     } else {
       titleWidget = null;
     }
-    
+
     final appBar = AppBar(
       leading: widget.showMenuButton ? _buildLeadingWidget(context) : null,
       automaticallyImplyLeading: widget.showMenuButton,
@@ -69,9 +69,7 @@ class _TopBarState extends State<TopBar> {
                 await windowManager.maximize();
               }
             },
-            child: DragToMoveArea(
-              child: appBar,
-            ),
+            child: DragToMoveArea(child: appBar),
           ),
           // 窗口控制按钮区域（右上角）
           if (_isDesktop())
@@ -105,7 +103,7 @@ class _TopBarState extends State<TopBar> {
         onPressed: widget.onMenuPressed,
       );
     }
-    
+
     // 否则显示原来的圆形按钮
     return _buildCircleMenuButton(context);
   }
@@ -119,10 +117,7 @@ class _TopBarState extends State<TopBar> {
             color: Theme.of(context).colorScheme.secondary,
             child: InkWell(
               onTap: widget.onMenuPressed,
-              child: const SizedBox(
-                width: 36,
-                height: 36,
-              ),
+              child: const SizedBox(width: 36, height: 36),
             ),
           ),
         ),
@@ -133,7 +128,7 @@ class _TopBarState extends State<TopBar> {
   // 构建窗口控制按钮（最小化、最大化、关闭）
   Widget _buildWindowControlButtons(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start, // 按钮靠近顶部
@@ -193,16 +188,15 @@ class _TopBarState extends State<TopBar> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          hoverColor: isCloseButton ? Colors.red.withAlpha(26) : colorScheme.onSurface.withAlpha(26),
+          hoverColor:
+              isCloseButton
+                  ? Colors.red.withAlpha(26)
+                  : colorScheme.onSurface.withAlpha(26),
           onTap: onPressed,
           child: Tooltip(
             message: tooltip,
             child: Center(
-              child: Icon(
-                icon,
-                size: 16,
-                color: colorScheme.onPrimary,
-              ),
+              child: Icon(icon, size: 16, color: colorScheme.onPrimary),
             ),
           ),
         ),
@@ -216,4 +210,4 @@ class _TopBarState extends State<TopBar> {
     }
     return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
   }
-} 
+}

@@ -17,7 +17,9 @@ class SentPage extends StatelessWidget {
               elevation: 0,
               color: Colors.transparent,
               shadowColor: colorScheme.shadow.withAlpha((255 * 0.2).round()),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

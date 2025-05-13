@@ -24,7 +24,9 @@ class ImapService {
     _client = ImapClient(isLogEnabled: true); // 调试时可以考虑启用日志: isLogEnabled: true
     try {
       if (_client == null) {
-        throw Exception('Mail client is not initialized prior to connectToServer.');
+        throw Exception(
+          'Mail client is not initialized prior to connectToServer.',
+        );
       }
       await _client!.connectToServer(
         imapServerHost,
