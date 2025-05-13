@@ -6,6 +6,7 @@
 .vscode/
 .roo/
 .idea/
+.vs/
 build/
 *.iml
 local.properties
