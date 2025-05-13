@@ -69,7 +69,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeManager(),
-      child: const CNMCFAPP(),
+      child: const CNMailCAPP(),
     ),
   );
 }
@@ -106,14 +106,14 @@ bool isDesktop() {
   return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 }
 
-class CNMCFAPP extends StatefulWidget {
-  const CNMCFAPP({super.key});
+class CNMailCAPP extends StatefulWidget {
+  const CNMailCAPP({super.key});
 
   @override
-  State<CNMCFAPP> createState() => _CNMCFAPPState();
+  State<CNMailCAPP> createState() => _CNMailCAPPState();
 }
 
-class _CNMCFAPPState extends State<CNMCFAPP> with WindowListener {
+class _CNMailCAPPState extends State<CNMailCAPP> with WindowListener {
   @override
   void initState() {
     super.initState();
