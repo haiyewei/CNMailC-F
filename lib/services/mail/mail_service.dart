@@ -50,10 +50,18 @@ class MailService {
     final client = ImapClient(isLogEnabled: isLogEnabled);
     List<MimeMessage> messages = [];
     try {
-      await client.connectToServer(imapServerHost, imapServerPort, isSecure: isImapServerSecure);
+      await client.connectToServer(
+        imapServerHost,
+        imapServerPort,
+        isSecure: isImapServerSecure,
+      );
+      await client.id();
       await client.login(userName, password);
       await client.selectInbox();
-      final fetchResult = await client.fetchRecentMessages(messageCount: messageCount, criteria: 'BODY.PEEK[]');
+      final fetchResult = await client.fetchRecentMessages(
+        messageCount: messageCount,
+        criteria: 'BODY.PEEK[]',
+      );
       messages = fetchResult.messages;
       await client.logout();
     } on ImapException catch (e) {
@@ -69,10 +77,15 @@ class MailService {
     required String subject,
     required String plainText,
     String? htmlText,
+    MimeMessage? mimeMessage,
   }) async {
-    final client = SmtpClient('', isLogEnabled: isLogEnabled);
+    final client = SmtpClient('localhost', isLogEnabled: isLogEnabled);
     try {
-      await client.connectToServer(smtpServerHost, smtpServerPort, isSecure: isSmtpServerSecure);
+      await client.connectToServer(
+        smtpServerHost,
+        smtpServerPort,
+        isSecure: isSmtpServerSecure,
+      );
       await client.ehlo();
       if (client.serverInfo.supportsAuth(AuthMechanism.plain)) {
         await client.authenticate(userName, password, AuthMechanism.plain);
@@ -81,15 +94,17 @@ class MailService {
       } else {
         return false;
       }
-      final builder = MessageBuilder.prepareMultipartAlternativeMessage(
-        plainText: plainText,
-        htmlText: htmlText ?? plainText,
-      )
-        ..from = [MailAddress('Sender', from)]
-        ..to = [MailAddress('Recipient', to)]
-        ..subject = subject;
-      final mimeMessage = builder.buildMimeMessage();
-      final sendResponse = await client.sendMessage(mimeMessage);
+      final MimeMessage messageToSend;
+      if (mimeMessage != null) {
+        messageToSend = mimeMessage;
+      } else {
+        final builder = MessageBuilder.prepareMultipartAlternativeMessage(
+          plainText: plainText,
+          htmlText: htmlText ?? plainText,
+        )..subject = subject;
+        messageToSend = builder.buildMimeMessage();
+      }
+      final sendResponse = await client.sendMessage(messageToSend);
       return sendResponse.isOkStatus;
     } on SmtpException catch (e) {
       Logger('MailService').severe('SMTP发送邮件失败: $e');
@@ -102,7 +117,11 @@ class MailService {
     final client = PopClient(isLogEnabled: isLogEnabled);
     List<MimeMessage> messages = [];
     try {
-      await client.connectToServer(popServerHost, popServerPort, isSecure: isPopServerSecure);
+      await client.connectToServer(
+        popServerHost,
+        popServerPort,
+        isSecure: isPopServerSecure,
+      );
       await client.login(userName, password);
       final status = await client.status();
       for (int i = 1; i <= status.numberOfMessages; i++) {

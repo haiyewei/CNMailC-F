@@ -3,6 +3,8 @@ import 'package:drift/drift.dart' as drift;
 import '../database/mail_database.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import '../services/mail/mail_service.dart';
+import '../services/mail/mail_test.dart';
 
 class AddMailCard extends StatefulWidget {
   final Function({bool saved})? onExit; // 修改 onExit 以接受参数
@@ -35,6 +37,9 @@ class _AddMailCardState extends State<AddMailCard> {
   final _smtpPortController = TextEditingController();
   bool _isSmtpSsl = true;
 
+  bool _isTesting = false;
+  Color _testResultColor = Colors.grey; // 默认颜色
+
   late AppDatabase _db;
   Map<String, dynamic> _mailServices = {};
 
@@ -45,6 +50,18 @@ class _AddMailCardState extends State<AddMailCard> {
     _updateHintTexts(); // Initialize hint texts
     _loadMailServices();
     _emailAddressController.addListener(_autoFillMailConfig);
+    _loadTestResultColor();
+  }
+
+  Future<void> _loadTestResultColor() async {
+    // 移除颜色保存功能
+  }
+
+  Future<void> _saveTestResultColor(Color color) async {
+    // 移除颜色保存功能
+    setState(() {
+      _testResultColor = color;
+    });
   }
 
   void _updateHintTexts() {
@@ -102,6 +119,15 @@ class _AddMailCardState extends State<AddMailCard> {
       );
 
       try {
+        // 添加日志以检查数据库版本和表结构
+        final currentSchemaVersion = _db.schemaVersion;
+        debugPrint('当前数据库模式版本: $currentSchemaVersion');
+
+        // 尝试查询表信息 (移除查询代码，只保留模式版本日志)
+        // 注意：Drift 没有直接提供一个简单的方法来获取所有列名，
+        // 但我们可以尝试执行一个简单的查询来间接验证表是否存在和结构是否符合预期。
+        // 如果表或列不存在，这个查询会抛出异常。
+
         await _db.insertMailAccount(mailAccountCompanion);
         if (!mounted) return;
         ScaffoldMessenger.of(
@@ -132,6 +158,68 @@ class _AddMailCardState extends State<AddMailCard> {
     }
   }
 
+  Future<void> _runMailTest() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      final emailAddress = _emailAddressController.text;
+      final password = _passwordController.text;
+      final receiverDomain = _receiverDomainController.text;
+      final receiverPort =
+          int.tryParse(_receiverPortController.text) ??
+          (_selectedServerType.first == ServerType.imap
+              ? (_isReceiverSsl ? 993 : 143)
+              : (_isReceiverSsl ? 995 : 110));
+      final smtpDomain = _smtpDomainController.text;
+      final smtpPort =
+          int.tryParse(_smtpPortController.text) ?? (_isSmtpSsl ? 465 : 587);
+
+      final mailService = MailService();
+      mailService.configure(
+        userName: emailAddress,
+        password: password,
+        imapServerHost:
+            _selectedServerType.first == ServerType.imap ? receiverDomain : '',
+        imapServerPort:
+            _selectedServerType.first == ServerType.imap ? receiverPort : 993,
+        isImapServerSecure: _isReceiverSsl,
+        popServerHost:
+            _selectedServerType.first == ServerType.pop ? receiverDomain : '',
+        popServerPort:
+            _selectedServerType.first == ServerType.pop ? receiverPort : 995,
+        isPopServerSecure: _isReceiverSsl,
+        smtpServerHost: smtpDomain,
+        smtpServerPort: smtpPort,
+        isSmtpServerSecure: _isSmtpSsl,
+        isLogEnabled: false,
+      );
+
+      setState(() {
+        _isTesting = true;
+      });
+
+      final testResult =
+          await MailTest(
+            mailService: mailService,
+            useImap: _selectedServerType.first == ServerType.imap,
+          ).runMailTest();
+
+      setState(() {
+        _isTesting = false;
+      });
+
+      // 根据测试结果设置颜色
+      Color resultColor = testResult.contains('成功') ? Colors.green : Colors.red;
+      await _saveTestResultColor(resultColor);
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(testResult)));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -154,7 +242,7 @@ class _AddMailCardState extends State<AddMailCard> {
                 children: [
                   Icon(
                     Icons.add_circle_outline,
-                    color: colorScheme.primary,
+                    color: _testResultColor,
                     size: 28,
                   ),
                   const SizedBox(width: 16),
@@ -372,6 +460,27 @@ class _AddMailCardState extends State<AddMailCard> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _isTesting ? null : _runMailTest,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Text('测试配置'),
+                        if (_isTesting)
+                          const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: _saveMailAccount,
                     child: const Text('保存账户'),

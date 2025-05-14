@@ -25,6 +25,18 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 3; // Schema version 已更新
 
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 3) {
+          // Migrate from schema version < 3 to 3
+          await m.addColumn(mailAccounts, mailAccounts.alias);
+        }
+      },
+    );
+  }
+
   // 插入邮箱账户
   Future<int> insertMailAccount(MailAccountsCompanion account) {
     return into(mailAccounts).insert(account);

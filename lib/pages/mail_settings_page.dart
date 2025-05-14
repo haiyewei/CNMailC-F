@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../database/mail_database.dart';
 import '../components/add_mail_card.dart';
 import '../services/notify/notify.dart'; // Corrected import
+import '../services/mail/mail_service.dart';
+import '../services/mail/mail_test.dart';
+import '../themes/theme_manager.dart';
 
 class MailSettingsPage extends StatefulWidget {
   const MailSettingsPage({super.key});
@@ -15,12 +19,28 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
   List<MailAccount> _mailAccounts = [];
   bool _isLoading = true;
   bool _isAddingAccount = false; // State to control AddMailCard visibility
+  final Map<int, bool> _testingAccounts = {};
+  final Map<int, String> _testResults = {};
 
   @override
   void initState() {
     super.initState();
     _db = AppDatabase();
-    _loadMailAccounts();
+    _loadMailAccounts().then((_) {
+      _loadTestResults();
+    });
+  }
+
+  Future<void> _loadTestResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      for (var account in _mailAccounts) {
+        String? savedResult = prefs.getString('testResult_${account.id}');
+        if (savedResult != null) {
+          _testResults[account.id] = savedResult;
+        }
+      }
+    });
   }
 
   Future<void> _loadMailAccounts() async {
@@ -128,9 +148,35 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
                 itemBuilder: (context, index) {
                   final account = _mailAccounts[index];
                   return ListTile(
-                    leading: const Icon(Icons.mail_outline),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _isTestingAccount(account) ? Colors.blue : _getTestResultColor(account),
+                      ),
+                      child: const Icon(Icons.mail_outline, color: Colors.white),
+                    ),
                     title: Text(account.emailAddress),
                     subtitle: Text(account.alias ?? '无别名'),
+                    trailing: IconButton(
+                      icon: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Icon(Icons.network_check),
+                          if (_isTestingAccount(account))
+                            Positioned.fill(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                              ),
+                            ),
+                        ],
+                      ),
+                      onPressed: () {
+                        _runMailTest(account);
+                      },
+                    ),
                   );
                 },
               ),
@@ -188,5 +234,62 @@ class _MailSettingsPageState extends State<MailSettingsPage> {
                 ),
               ),
     );
+  }
+  Future<void> _runMailTest(MailAccount account) async {
+    setState(() {
+      _testingAccounts[account.id] = true;
+      _testResults[account.id] = '测试中...';
+    });
+
+    final mailService = MailService();
+    mailService.configure(
+      userName: account.emailAddress,
+      password: account.password,
+      imapServerHost: account.serverType == 'IMAP' ? account.domain : '',
+      imapServerPort: account.serverType == 'IMAP' ? account.port : 993,
+      isImapServerSecure: account.isSsl,
+      popServerHost: account.serverType == 'POP' ? account.domain : '',
+      popServerPort: account.serverType == 'POP' ? account.port : 995,
+      isPopServerSecure: account.isSsl,
+      smtpServerHost: account.domain, // 假设 SMTP 服务器与接收服务器相同
+      smtpServerPort: account.isSsl ? 465 : 587,
+      isSmtpServerSecure: account.isSsl,
+      isLogEnabled: false,
+    );
+
+        // Run the mail test and update state after it completes
+        final testResult = await MailTest(
+          mailService: mailService,
+          useImap: account.serverType == 'IMAP',
+        ).runMailTest();
+    
+        // Update state with the test result, save it, and show notification
+        if (mounted) {
+          setState(() {
+            _testingAccounts[account.id] = false;
+            _testResults[account.id] = testResult;
+          });
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('testResult_${account.id}', testResult);
+          NotifyController().showNotify(
+            NotifyData(
+              message: testResult,
+              type: NotifyType.app,
+              time: DateTime.now(),
+            ),
+          );
+        }
+  }
+
+  bool _isTestingAccount(MailAccount account) {
+    return _testingAccounts[account.id] ?? false;
+  }
+
+  Color _getTestResultColor(MailAccount account) {
+    final result = _testResults[account.id];
+    if (result == null) return Colors.grey;
+    if (result.contains('成功')) return ThemeManager().successColor;
+    if (result.contains('失败')) return ThemeManager().warningColor;
+    return Colors.blue;
   }
 }

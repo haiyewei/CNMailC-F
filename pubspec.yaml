@@ -51,6 +51,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.32
   drift: ^2.26.1
   url_launcher: ^6.3.0
+  fluttertoast: ^8.2.12
 
   
   
