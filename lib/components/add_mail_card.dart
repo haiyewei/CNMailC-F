@@ -409,8 +409,6 @@ class _AddMailCardState extends State<AddMailCard> {
         serviceName = 'Gmail';
       } else if (domain.contains('outlook') || domain.contains('hotmail')) {
         serviceName = 'Outlook';
-      } else if (domain.contains('yahoo')) {
-        serviceName = 'Yahoo';
       } else if (domain.contains('qq')) {
         serviceName = 'QQ Mail';
       } else if (domain.contains('163')) {
