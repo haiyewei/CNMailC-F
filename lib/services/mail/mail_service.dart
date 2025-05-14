@@ -1,54 +1,53 @@
 import 'package:enough_mail/enough_mail.dart';
+import 'package:logging/logging.dart';
 
 class MailService {
-  String userName = '';
-  String password = '';
-  String imapServerHost = '';
-  int imapServerPort = 993;
-  bool isImapServerSecure = true;
-  String popServerHost = '';
-  int popServerPort = 995;
-  bool isPopServerSecure = true;
-  String smtpServerHost = '';
-  int smtpServerPort = 465;
-  bool isSmtpServerSecure = true;
+  late String userName;
+  late String password;
+  late String imapServerHost;
+  late int imapServerPort;
+  late bool isImapServerSecure;
+  late String popServerHost;
+  late int popServerPort;
+  late bool isPopServerSecure;
+  late String smtpServerHost;
+  late int smtpServerPort;
+  late bool isSmtpServerSecure;
+  late bool isLogEnabled;
 
-  MailService({
-    required this.userName,
-    required this.password,
-    required this.imapServerHost,
-    this.imapServerPort = 993,
-    this.isImapServerSecure = true,
-    required this.popServerHost,
-    this.popServerPort = 995,
-    this.isPopServerSecure = true,
-    required this.smtpServerHost,
-    this.smtpServerPort = 465,
-    this.isSmtpServerSecure = true,
-  });
+  MailService();
 
-  /// 自动发现邮件服务配置
-  Future<void> discoverSettings(String email) async {
-    var config = await Discover.discover(email, isLogEnabled: false);
-    if (config != null && config.emailProviders != null && config.emailProviders!.isNotEmpty) {
-      for (var provider in config.emailProviders!) {
-        if (provider.preferredIncomingServer != null) {
-          imapServerHost = provider.preferredIncomingServer!.hostname;
-          imapServerPort = provider.preferredIncomingServer!.port;
-          isImapServerSecure = provider.preferredIncomingServer!.socketType == SocketType.ssl;
-        }
-        if (provider.preferredOutgoingServer != null) {
-          smtpServerHost = provider.preferredOutgoingServer!.hostname;
-          smtpServerPort = provider.preferredOutgoingServer!.port;
-          isSmtpServerSecure = provider.preferredOutgoingServer!.socketType == SocketType.ssl;
-        }
-      }
-    }
+  void configure({
+    required String userName,
+    required String password,
+    required String imapServerHost,
+    required int imapServerPort,
+    required bool isImapServerSecure,
+    required String popServerHost,
+    required int popServerPort,
+    required bool isPopServerSecure,
+    required String smtpServerHost,
+    required int smtpServerPort,
+    required bool isSmtpServerSecure,
+    required bool isLogEnabled,
+  }) {
+    this.userName = userName;
+    this.password = password;
+    this.imapServerHost = imapServerHost;
+    this.imapServerPort = imapServerPort;
+    this.isImapServerSecure = isImapServerSecure;
+    this.popServerHost = popServerHost;
+    this.popServerPort = popServerPort;
+    this.isPopServerSecure = isPopServerSecure;
+    this.smtpServerHost = smtpServerHost;
+    this.smtpServerPort = smtpServerPort;
+    this.isSmtpServerSecure = isSmtpServerSecure;
+    this.isLogEnabled = isLogEnabled;
   }
 
   /// 使用IMAP协议获取邮件
   Future<List<MimeMessage>> fetchImapMessages({int messageCount = 10}) async {
-    final client = ImapClient(isLogEnabled: false);
+    final client = ImapClient(isLogEnabled: isLogEnabled);
     List<MimeMessage> messages = [];
     try {
       await client.connectToServer(imapServerHost, imapServerPort, isSecure: isImapServerSecure);
@@ -58,7 +57,7 @@ class MailService {
       messages = fetchResult.messages;
       await client.logout();
     } on ImapException catch (e) {
-      print('IMAP获取邮件失败: $e');
+      Logger('MailService').severe('IMAP获取邮件失败: $e');
     }
     return messages;
   }
@@ -71,7 +70,7 @@ class MailService {
     required String plainText,
     String? htmlText,
   }) async {
-    final client = SmtpClient('enough.de', isLogEnabled: false);
+    final client = SmtpClient('', isLogEnabled: isLogEnabled);
     try {
       await client.connectToServer(smtpServerHost, smtpServerPort, isSecure: isSmtpServerSecure);
       await client.ehlo();
@@ -84,7 +83,7 @@ class MailService {
       }
       final builder = MessageBuilder.prepareMultipartAlternativeMessage(
         plainText: plainText,
-        htmlText: htmlText ?? '<p>$plainText</p>',
+        htmlText: htmlText ?? plainText,
       )
         ..from = [MailAddress('Sender', from)]
         ..to = [MailAddress('Recipient', to)]
@@ -93,14 +92,14 @@ class MailService {
       final sendResponse = await client.sendMessage(mimeMessage);
       return sendResponse.isOkStatus;
     } on SmtpException catch (e) {
-      print('SMTP发送邮件失败: $e');
+      Logger('MailService').severe('SMTP发送邮件失败: $e');
       return false;
     }
   }
 
   /// 使用POP3协议获取邮件
   Future<List<MimeMessage>> fetchPopMessages() async {
-    final client = PopClient(isLogEnabled: false);
+    final client = PopClient(isLogEnabled: isLogEnabled);
     List<MimeMessage> messages = [];
     try {
       await client.connectToServer(popServerHost, popServerPort, isSecure: isPopServerSecure);
@@ -112,7 +111,7 @@ class MailService {
       }
       await client.quit();
     } on PopException catch (e) {
-      print('POP获取邮件失败: $e');
+      Logger('MailService').severe('POP获取邮件失败: $e');
     }
     return messages;
   }
