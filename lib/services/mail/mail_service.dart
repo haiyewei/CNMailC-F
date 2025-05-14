@@ -45,7 +45,6 @@ class MailService {
     this.isLogEnabled = isLogEnabled;
   }
 
-  /// 使用IMAP协议获取邮件
   Future<List<MimeMessage>> fetchImapMessages({int messageCount = 10}) async {
     final client = ImapClient(isLogEnabled: isLogEnabled);
     List<MimeMessage> messages = [];
@@ -57,7 +56,6 @@ class MailService {
       );
 
       await client.login(userName, password);
-      // 直接在登录后发送ID命令，使用键值对形式
       final idObj = Id(
         name: 'name',
         version: 'version',
@@ -67,7 +65,6 @@ class MailService {
       await client.selectInbox();
       final fetchResult = await client.fetchRecentMessages(
         messageCount: messageCount,
-        criteria: 'BODY.PEEK[]',
       );
       messages = fetchResult.messages;
       await client.logout();
