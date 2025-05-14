@@ -385,15 +385,18 @@ class _AddMailCardState extends State<AddMailCard> {
       ),
     );
   }
+
   Future<void> _loadMailServices() async {
     try {
-      final String response = await rootBundle.loadString('assets/config/mail_services.json');
+      final String response = await rootBundle.loadString(
+        'assets/config/mail_services.json',
+      );
       final data = jsonDecode(response);
       setState(() {
         _mailServices = data['mail_services'];
       });
     } catch (e) {
-      print('加载邮件服务配置失败: $e');
+      debugPrint('加载邮件服务配置失败: $e');
     }
   }
 
@@ -417,14 +420,18 @@ class _AddMailCardState extends State<AddMailCard> {
       if (_mailServices.containsKey(serviceName)) {
         final service = _mailServices[serviceName];
         setState(() {
-          _receiverDomainController.text = service[_selectedServerType.first == ServerType.imap ? 'imap' : 'pop']['domain'];
+          _receiverDomainController.text =
+              service[_selectedServerType.first == ServerType.imap
+                  ? 'imap'
+                  : 'pop']['domain'];
           _smtpDomainController.text = service['smtp']['domain'];
           _updatePortHints(service);
         });
       } else {
         // 使用标准端口
         setState(() {
-          _receiverDomainController.text = '${_selectedServerType.first == ServerType.imap ? 'imap' : 'pop'}.$domain';
+          _receiverDomainController.text =
+              '${_selectedServerType.first == ServerType.imap ? 'imap' : 'pop'}.$domain';
           _smtpDomainController.text = 'smtp.$domain';
           _updatePortHints();
         });
@@ -434,15 +441,22 @@ class _AddMailCardState extends State<AddMailCard> {
 
   void _updatePortHints([Map<String, dynamic>? service]) {
     if (service != null) {
-      _receiverPortController.text = service[_selectedServerType.first == ServerType.imap ? 'imap' : 'pop'][_isReceiverSsl ? 'port_ssl' : 'port_non_ssl'].toString();
-      _smtpPortController.text = service['smtp'][_isSmtpSsl ? 'port_ssl' : 'port_non_ssl'].toString();
+      _receiverPortController.text =
+          service[_selectedServerType.first == ServerType.imap
+                  ? 'imap'
+                  : 'pop'][_isReceiverSsl ? 'port_ssl' : 'port_non_ssl']
+              .toString();
+      _smtpPortController.text =
+          service['smtp'][_isSmtpSsl ? 'port_ssl' : 'port_non_ssl'].toString();
     } else {
       if (_selectedServerType.first == ServerType.imap) {
         _receiverPortController.text = _isReceiverSsl ? '993' : '143';
-        _receiverPortHintText = "例如：${_isReceiverSsl ? '993 (SSL)' : '143 (非SSL)' }";
+        _receiverPortHintText =
+            "例如：${_isReceiverSsl ? '993 (SSL)' : '143 (非SSL)'}";
       } else {
         _receiverPortController.text = _isReceiverSsl ? '995' : '110';
-        _receiverPortHintText = "例如：${_isReceiverSsl ? '995 (SSL)' : '110 (非SSL)' }";
+        _receiverPortHintText =
+            "例如：${_isReceiverSsl ? '995 (SSL)' : '110 (非SSL)'}";
       }
       _smtpPortController.text = _isSmtpSsl ? '465' : '587';
     }
