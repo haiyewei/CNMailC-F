@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import '../database/mail_database.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
 class AddMailCard extends StatefulWidget {
   final Function({bool saved})? onExit; // 修改 onExit 以接受参数
@@ -34,12 +36,15 @@ class _AddMailCardState extends State<AddMailCard> {
   bool _isSmtpSsl = true;
 
   late AppDatabase _db;
+  Map<String, dynamic> _mailServices = {};
 
   @override
   void initState() {
     super.initState();
     _db = AppDatabase();
     _updateHintTexts(); // Initialize hint texts
+    _loadMailServices();
+    _emailAddressController.addListener(_autoFillMailConfig);
   }
 
   void _updateHintTexts() {
@@ -54,6 +59,7 @@ class _AddMailCardState extends State<AddMailCard> {
 
   @override
   void dispose() {
+    _emailAddressController.removeListener(_autoFillMailConfig);
     _emailAddressController.dispose();
     _aliasController.dispose();
     _passwordController.dispose();
@@ -129,6 +135,7 @@ class _AddMailCardState extends State<AddMailCard> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    _updatePortHints();
 
     return Card(
       elevation: 2,
@@ -261,6 +268,7 @@ class _AddMailCardState extends State<AddMailCard> {
                         if (newSelection.isNotEmpty) {
                           _selectedServerType = newSelection;
                           _updateHintTexts(); // Update hint texts on selection change
+                          _updatePortHintsBasedOnEmail();
                         }
                       });
                     },
@@ -312,6 +320,7 @@ class _AddMailCardState extends State<AddMailCard> {
                     onChanged: (bool value) {
                       setState(() {
                         _isReceiverSsl = value;
+                        _updatePortHintsBasedOnEmail();
                       });
                     },
                   ),
@@ -358,6 +367,7 @@ class _AddMailCardState extends State<AddMailCard> {
                     onChanged: (bool value) {
                       setState(() {
                         _isSmtpSsl = value;
+                        _updatePortHintsBasedOnEmail();
                       });
                     },
                   ),
@@ -374,5 +384,95 @@ class _AddMailCardState extends State<AddMailCard> {
         ),
       ),
     );
+  }
+  Future<void> _loadMailServices() async {
+    try {
+      final String response = await rootBundle.loadString('assets/config/mail_services.json');
+      final data = jsonDecode(response);
+      setState(() {
+        _mailServices = data['mail_services'];
+      });
+    } catch (e) {
+      print('加载邮件服务配置失败: $e');
+    }
+  }
+
+  void _autoFillMailConfig() {
+    final email = _emailAddressController.text;
+    if (email.contains('@')) {
+      final domain = email.split('@')[1].toLowerCase();
+      String serviceName = '';
+      if (domain.contains('gmail')) {
+        serviceName = 'Gmail';
+      } else if (domain.contains('outlook') || domain.contains('hotmail')) {
+        serviceName = 'Outlook';
+      } else if (domain.contains('yahoo')) {
+        serviceName = 'Yahoo';
+      } else if (domain.contains('qq')) {
+        serviceName = 'QQ Mail';
+      } else if (domain.contains('163')) {
+        serviceName = '163 Mail';
+      }
+
+      if (_mailServices.containsKey(serviceName)) {
+        final service = _mailServices[serviceName];
+        setState(() {
+          _receiverDomainController.text = service[_selectedServerType.first == ServerType.imap ? 'imap' : 'pop']['domain'];
+          _smtpDomainController.text = service['smtp']['domain'];
+          _updatePortHints(service);
+        });
+      } else {
+        // 使用标准端口
+        setState(() {
+          _receiverDomainController.text = '${_selectedServerType.first == ServerType.imap ? 'imap' : 'pop'}.$domain';
+          _smtpDomainController.text = 'smtp.$domain';
+          _updatePortHints();
+        });
+      }
+    }
+  }
+
+  void _updatePortHints([Map<String, dynamic>? service]) {
+    if (service != null) {
+      _receiverPortController.text = service[_selectedServerType.first == ServerType.imap ? 'imap' : 'pop'][_isReceiverSsl ? 'port_ssl' : 'port_non_ssl'].toString();
+      _smtpPortController.text = service['smtp'][_isSmtpSsl ? 'port_ssl' : 'port_non_ssl'].toString();
+    } else {
+      if (_selectedServerType.first == ServerType.imap) {
+        _receiverPortController.text = _isReceiverSsl ? '993' : '143';
+        _receiverPortHintText = "例如：${_isReceiverSsl ? '993 (SSL)' : '143 (非SSL)' }";
+      } else {
+        _receiverPortController.text = _isReceiverSsl ? '995' : '110';
+        _receiverPortHintText = "例如：${_isReceiverSsl ? '995 (SSL)' : '110 (非SSL)' }";
+      }
+      _smtpPortController.text = _isSmtpSsl ? '465' : '587';
+    }
+  }
+
+  void _updatePortHintsBasedOnEmail() {
+    final email = _emailAddressController.text;
+    if (email.contains('@')) {
+      final domain = email.split('@')[1].toLowerCase();
+      String serviceName = '';
+      if (domain.contains('gmail')) {
+        serviceName = 'Gmail';
+      } else if (domain.contains('outlook') || domain.contains('hotmail')) {
+        serviceName = 'Outlook';
+      } else if (domain.contains('yahoo')) {
+        serviceName = 'Yahoo';
+      } else if (domain.contains('qq')) {
+        serviceName = 'QQ Mail';
+      } else if (domain.contains('163')) {
+        serviceName = '163 Mail';
+      }
+
+      if (_mailServices.containsKey(serviceName)) {
+        final service = _mailServices[serviceName];
+        _updatePortHints(service);
+      } else {
+        _updatePortHints();
+      }
+    } else {
+      _updatePortHints();
+    }
   }
 }

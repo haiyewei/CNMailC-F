@@ -1,0 +1,89 @@
+{
+  "mail_services": {
+    "Gmail": {
+      "imap": {
+        "domain": "imap.gmail.com",
+        "port_ssl": 993,
+        "port_non_ssl": 143
+      },
+      "smtp": {
+        "domain": "smtp.gmail.com",
+        "port_ssl": 465,
+        "port_non_ssl": 587
+      },
+      "pop": {
+        "domain": "pop.gmail.com",
+        "port_ssl": 995,
+        "port_non_ssl": 110
+      }
+    },
+    "Outlook": {
+      "imap": {
+        "domain": "imap-mail.outlook.com",
+        "port_ssl": 993,
+        "port_non_ssl": 143
+      },
+      "smtp": {
+        "domain": "smtp.office365.com",
+        "port_ssl": 587,
+        "port_non_ssl": 25
+      },
+      "pop": {
+        "domain": "pop-mail.outlook.com",
+        "port_ssl": 995,
+        "port_non_ssl": 110
+      }
+    },
+    "Yahoo": {
+      "imap": {
+        "domain": "imap.mail.yahoo.com",
+        "port_ssl": 993,
+        "port_non_ssl": 143
+      },
+      "smtp": {
+        "domain": "smtp.mail.yahoo.com",
+        "port_ssl": 465,
+        "port_non_ssl": 587
+      },
+      "pop": {
+        "domain": "pop.mail.yahoo.com",
+        "port_ssl": 995,
+        "port_non_ssl": 110
+      }
+    },
+    "QQ Mail": {
+      "imap": {
+        "domain": "imap.qq.com",
+        "port_ssl": 993,
+        "port_non_ssl": 143
+      },
+      "smtp": {
+        "domain": "smtp.qq.com",
+        "port_ssl": 465,
+        "port_non_ssl": 587
+      },
+      "pop": {
+        "domain": "pop.qq.com",
+        "port_ssl": 995,
+        "port_non_ssl": 110
+      }
+    },
+    "163 Mail": {
+      "imap": {
+        "domain": "imap.163.com",
+        "port_ssl": 993,
+        "port_non_ssl": 143
+      },
+      "smtp": {
+        "domain": "smtp.163.com",
+        "port_ssl": 465,
+        "port_non_ssl": 25
+      },
+      "pop": {
+        "domain": "pop.163.com",
+        "port_ssl": 995,
+        "port_non_ssl": 110
+      }
+    }
+  }
+}

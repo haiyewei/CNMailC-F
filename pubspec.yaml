@@ -94,6 +94,7 @@ flutter:
     - assets/themes/colors.json
     - assets/icons/app_icon.ico
     - assets/icons/app_icon.png
+    - assets/config/mail_services.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
